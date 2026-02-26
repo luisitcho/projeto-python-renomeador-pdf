@@ -1,0 +1,39 @@
+{
+  "name": "next-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start -p $PORT",
+    "lint": "eslint",
+    "docker:dev": "docker build -t renomeador-pdf . && docker run --rm -it -p 7860:7860 renomeador-pdf"
+  },
+  "dependencies": {
+    "jimp": "^0.22.12",
+    "jszip": "^3.10.1",
+    "lucide-react": "^0.575.0",
+    "next": "16.1.6",
+    "pdf-lib": "^1.17.1",
+    "pdf-parse": "^1.1.4",
+    "pdf2json": "^4.0.2",
+    "pdfjs-dist": "^4.4.168",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "tesseract-ocr": "^1.0.0",
+    "tesseract.js": "^5.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/pdf-parse": "^1.1.5",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.27",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5"
+  }
+}
