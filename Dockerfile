@@ -9,25 +9,26 @@ RUN apt-get update && apt-get install -y \
     poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
-# Cria usuário 1000 conforme padrão do Hugging Face
-RUN useradd -m -u 1000 user
+# Configura o diretório de trabalho
 WORKDIR /app
-RUN chown user:user /app
 
-# Switch para o usuário não-root
-USER user
-ENV PATH="/home/user/.local/bin:$PATH"
+# Em vez de criar um novo usuário (que pode dar conflito no UID 1000), 
+# vamos garantir que o diretório pertença ao UID 1000 (padrão do Hugging Face)
+RUN chown -R 1000:1000 /app
+
+# Switch para o UID 1000 (usuário não-root padrão da imagem e do HF)
+USER 1000
 
 # Instala dependências do Node
-COPY --chown=user package*.json ./
+COPY --chown=1000:1000 package*.json ./
 RUN npm install
 
 # Copia script Python e requisitos
-COPY --chown=user requirements.txt* ./
+COPY --chown=1000:1000 requirements.txt* ./
 RUN pip install --no-cache-dir pytesseract pdf2image pillow
 
 # Copia o resto do código
-COPY --chown=user . .
+COPY --chown=1000:1000 . .
 
 # Build do Next.js
 ENV NODE_ENV=production
