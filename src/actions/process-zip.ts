@@ -72,7 +72,7 @@ export async function processZipAction(formData: FormData): Promise<ProcessResul
 
                 // --- LÓGICA DE EXTRAÇÃO ---
                 const rpaMatch = cleanText.match(/RPA\s*[:.-]?\s*(\d{4,6})/i) || cleanText.match(/(\d{4,6})\s*2[0-9]{3}/);
-                const valueMatch = cleanText.match(/R\$\s*([\d.,]{4,15})/i) || cleanText.match(/(?:Total|Liquido|Recebi|Pago)\s*[:.-]?\s*R?\$\s*([\d.,]{4,15})/i);
+                const valueMatch = cleanText.match(/(?:Total|Liquido|Líquido|Recebi|Recebido|Pago|Valor)\s*(?:[a-zÀ-ú\s]{0,20})?\s*[:.-]?\s*R?\$\s*([\d.,]{4,15})/i) || cleanText.match(/R\$\s*([\d.,]{4,15})/i);
 
                 let name = 'NOME-NAO-ENCONTRADO';
                 const nameLabel = cleanText.match(/(?:Nome|Diarista|Beneficiário|Prestador|Diarista:)\s*[:.-]?\s*([A-ZÀ-Ú\s]{5,70})/i);

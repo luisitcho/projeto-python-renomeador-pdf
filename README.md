@@ -1,5 +1,5 @@
 ---
-title: PDF Renamer Elite
+title: Renomeador de Recibo de Pagamento
 emoji: 📄
 colorFrom: indigo
 colorTo: purple
@@ -7,14 +7,14 @@ sdk: docker
 pinned: false
 ---
 
-# PDF Renamer Elite - Documentação Técnica
+# Renomeador de Recibo de Pagamento - Documentação Técnica
 
 Este projeto é uma ferramenta de processamento em lote para documentos PDF, focada na extração de dados via OCR (Optical Character Recognition) e renomeação automatizada. A solução utiliza uma arquitetura híbrida entre Node.js (Next.js) e Python para garantir performance e precisão na leitura de documentos escaneados.
 
 ## 🚀 Live Demo
 
 A aplicação está hospedada e pode ser acessada publicamente em:
-**[Hugging Face Spaces - PDF Renamer Elite](https://huggingface.co/spaces/luisitcho/projeto-python-renomeador-pdf)**
+**[Hugging Face Spaces - Renomeador de Recibo de Pagamento](https://huggingface.co/spaces/luisitcho/projeto-python-renomeador-pdf)**
 
 > **Nota**: Por ser uma hospedagem gratuita, a aplicação pode entrar em modo de suspensão após 48h de inatividade. Caso encontre a aplicação "dormindo", basta aguardar alguns minutos para que o container seja reiniciado.
 
