@@ -79,3 +79,18 @@ docker stop $(docker ps -q)
 
 ## Lógica de Extração de Dados
 A extração é baseada em expressões regulares (Regex) aplicadas sobre o texto bruto retornado pelo OCR. O sistema prioriza a identificação de etiquetas comuns como "RPA", "CPF nº", "Valor R$" e busca nomes de beneficiários baseando-se em padrões de caixa alta e posicionamento no documento.
+
+## 📦 Como Salvar e Atualizar o App (Commit & Deploy)
+
+Para salvar suas alterações no projeto e enviar as atualizações tanto para o GitHub quanto para a plataforma (Hugging Face Spaces), utilize o comando combinado abaixo na raiz da pasta do seu projeto:
+
+```bash
+git add . && git commit -m "Sua mensagem descrevendo as alterações..." && git push origin main && git push hf main
+```
+
+### O que acontece nesse comando?
+1. `git add .` : Prepara todas as suas alterações locais (novos arquivos, edições, etc.).
+2. `git commit -m "..."` : Salva ("embala") essas alterações com uma mensagem explicativa.
+3. `git push origin main` : Envia o código atualizado para o seu repositório de backup no **GitHub**.
+4. `git push hf main` : Envia o código atualizado para o servidor do **Hugging Face**.
+   - *Nota:* Ao receber esse envio (`push hf`), a plataforma do Hugging Face iniciará automaticamente a recriação do container Docker e sua aplicação online será atualizada com a nova versão em alguns minutos.
