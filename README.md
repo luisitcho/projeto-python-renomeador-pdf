@@ -80,17 +80,24 @@ docker stop $(docker ps -q)
 ## Lógica de Extração de Dados
 A extração é baseada em expressões regulares (Regex) aplicadas sobre o texto bruto retornado pelo OCR. O sistema prioriza a identificação de etiquetas comuns como "RPA", "CPF nº", "Valor R$" e busca nomes de beneficiários baseando-se em padrões de caixa alta e posicionamento no documento.
 
-## 📦 Como Salvar e Atualizar o App (Commit & Deploy)
+## Deployment e Integração Contínua (CI/CD)
 
-Para salvar suas alterações no projeto e enviar as atualizações tanto para o GitHub quanto para a plataforma (Hugging Face Spaces), utilize o comando combinado abaixo na raiz da pasta do seu projeto:
+A aplicação utiliza um fluxo de Integração e Entrega Contínua (CI/CD) configurado via **GitHub Actions** para garantir o deploy automatizado na plataforma Hugging Face Spaces.
 
-```bash
-git add . && git commit -m "Sua mensagem descrevendo as alterações..." && git push origin main && git push hf main
-```
+Para aplicar atualizações em ambiente de produção:
 
-### O que acontece nesse comando?
-1. `git add .` : Prepara todas as suas alterações locais (novos arquivos, edições, etc.).
-2. `git commit -m "..."` : Salva ("embala") essas alterações com uma mensagem explicativa.
-3. `git push origin main` : Envia o código atualizado para o seu repositório de backup no **GitHub**.
-4. `git push hf main` : Envia o código atualizado para o servidor do **Hugging Face**.
-   - *Nota:* Ao receber esse envio (`push hf`), a plataforma do Hugging Face iniciará automaticamente a recriação do container Docker e sua aplicação online será atualizada com a nova versão em alguns minutos.
+1. Realize o commit das suas alterações e efetue o push para a branch `main`:
+   ```bash
+   git add .
+   git commit -m "chore: atualiza regras de extração"
+   git push origin main
+   ```
+
+2. **Fluxo de Automação**: O evento de push na branch `main` disparará automaticamente a pipeline configurada.
+3. A pipeline sincroniza o controle de versão do GitHub com o servidor do Hugging Face.
+4. Ao receber o novo código, a infraestrutura do Hugging Face reconstrói o container Docker automaticamente.
+
+> **⚠️ Configuração Exigida (Authentication Token)**:
+> Para que o workflow do GitHub Actions tenha permissão de escrita no Hugging Face, o token de acesso deve ser configurado no repositório.
+> Vá até: `Repository Settings > Secrets and variables > Actions > New repository secret`.
+> Defina o nome do secret estritamente como **`HF_TOKEN`** e cole o valor gerado no painel da sua conta Hugging Face.

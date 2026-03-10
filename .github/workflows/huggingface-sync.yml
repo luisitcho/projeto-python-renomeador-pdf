@@ -1,0 +1,23 @@
+name: Sync to Hugging Face Hub
+
+on:
+  push:
+    branches: [main]
+  # Permite rodar o workflow manualmente se necessário
+  workflow_dispatch:
+
+jobs:
+  sync-to-hub:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Código do GitHub
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Busca todo o histórico para o push funcionar corretamente
+
+      - name: Fazer Push para o Hugging Face Spaces
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git remote add huggingface https://luisitcho:$HF_TOKEN@huggingface.co/spaces/luisitcho/projeto-python-renomeador-pdf
+          git push huggingface main --force
