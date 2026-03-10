@@ -13,19 +13,20 @@ export default function StarryBackground() {
         if (!ctx) return;
 
         let animationFrameId: number;
-        let stars: { x: number; y: number; radius: number; speed: number; opacity: number }[] = [];
+        let stars: { x: number; y: number; radius: number; opacity: number; twinkleSpeed: number; decreasing: boolean }[] = [];
 
         const initStars = () => {
             stars = [];
-            // Quantidade sutil de estrelas (1 estrela para cada 12000px de área)
-            const numStars = Math.floor((canvas.width * canvas.height) / 12000);
+            // Quantidade sutil de estrelas (um pouco mais concentrado para um céu noturno)
+            const numStars = Math.floor((canvas.width * canvas.height) / 9000);
             for (let i = 0; i < numStars; i++) {
                 stars.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    radius: Math.random() * 1.2 + 0.2, // pontos muito pequenos
-                    speed: Math.random() * 0.3 + 0.05, // queda super suave
-                    opacity: Math.random() * 0.4 + 0.1, // brilho sutil
+                    radius: Math.random() * 1.2 + 0.3, // tamanhos variados
+                    opacity: Math.random() * 0.5 + 0.1, // estado inicial do brilho
+                    twinkleSpeed: Math.random() * 0.01 + 0.003, // velocidade em que a estrela pisca
+                    decreasing: Math.random() > 0.5, // define se a estrela começa acendendo ou apagando
                 });
             }
         };
@@ -41,17 +42,25 @@ export default function StarryBackground() {
 
             stars.forEach((star) => {
                 ctx.beginPath();
+                // A sombra cria um leve efeito de neon/brilho ao redor de cada pontinho
+                ctx.shadowBlur = Math.random() * 3 + 1;
+                ctx.shadowColor = `rgba(255, 255, 255, ${star.opacity})`;
+
                 ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
                 ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Movimentação para baixo
-                star.y += star.speed;
-
-                // Se passar do fundo, volta para o topo em uma posição X aleatória
-                if (star.y > canvas.height) {
-                    star.y = 0;
-                    star.x = Math.random() * canvas.width;
+                // Lógica do Twinkle (Piscar)
+                if (star.decreasing) {
+                    star.opacity -= star.twinkleSpeed;
+                    if (star.opacity <= 0.1) {
+                        star.decreasing = false; // Começa a acender
+                    }
+                } else {
+                    star.opacity += star.twinkleSpeed;
+                    if (star.opacity >= 0.7) {
+                        star.decreasing = true; // Começa a apagar
+                    }
                 }
             });
 
