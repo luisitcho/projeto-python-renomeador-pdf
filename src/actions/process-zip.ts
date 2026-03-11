@@ -137,9 +137,9 @@ export async function processZipAction(formData: FormData): Promise<ProcessResul
         const zipData = await newZip.generateAsync({ type: 'base64' });
         return { success: true, data: zipData, files: results };
 
-    } catch (err) {
+    } catch (err: any) {
         console.error("Erro Geral no Processamento:", err);
-        return { success: false, error: 'Erro crítico no motor Python.', files: [] };
+        return { success: false, error: `Erro no servidor: ${err?.message || 'Falha crítica no processamento (possível timeout ou limite de memória).'}.`, files: [] };
     } finally {
         // Tenta limpar a pasta temp
         try {

@@ -86,9 +86,15 @@ export default function Home() {
       } else {
         setError(result.error || 'Erro ao processar o arquivo.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError('Ocorreu um erro inesperado.');
+      const msg = err?.message || String(err) || '';
+
+      if (msg.includes('Body exceeded') || msg.includes('Payload Too Large') || msg.toLowerCase().includes('size')) {
+        setError('O arquivo é muito grande. O limite agora é 200MB (reinicie o servidor caso não tenha feito).');
+      } else {
+        setError(`Ocorreu um erro: A conexão pode ter caído ou o tempo limite foi atingido. Tente lotes menores (ex: 10 em 10). ${msg ? '(' + msg + ')' : ''}`);
+      }
     } finally {
       setIsProcessing(false);
     }
