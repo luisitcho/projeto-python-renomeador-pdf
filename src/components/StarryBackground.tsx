@@ -13,20 +13,44 @@ export default function StarryBackground() {
         if (!ctx) return;
 
         let animationFrameId: number;
-        let stars: { x: number; y: number; radius: number; opacity: number; twinkleSpeed: number; decreasing: boolean }[] = [];
+        let stars: { 
+            x: number; 
+            y: number; 
+            originX: number;
+            originY: number;
+            vx: number; 
+            vy: number; 
+            radius: number; 
+            opacity: number; 
+            twinkleSpeed: number; 
+            decreasing: boolean 
+        }[] = [];
+        let mouseX = -1000;
+        let mouseY = -1000;
+
+        const handleMouseMove = (e: MouseEvent) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        };
 
         const initStars = () => {
             stars = [];
-            // Quantidade sutil de estrelas (um pouco mais concentrado para um céu noturno)
-            const numStars = Math.floor((canvas.width * canvas.height) / 9000);
+            // Densidade equilibrada (1 estrela a cada 5000 pixels)
+            const numStars = Math.floor((canvas.width * canvas.height) / 5000);
             for (let i = 0; i < numStars; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
                 stars.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    radius: Math.random() * 1.2 + 0.3, // tamanhos variados
-                    opacity: Math.random() * 0.5 + 0.1, // estado inicial do brilho
-                    twinkleSpeed: Math.random() * 0.01 + 0.003, // velocidade em que a estrela pisca
-                    decreasing: Math.random() > 0.5, // define se a estrela começa acendendo ou apagando
+                    x: x,
+                    y: y,
+                    originX: x,
+                    originY: y,
+                    vx: 0,
+                    vy: 0,
+                    radius: Math.random() * 1.8 + 0.4, 
+                    opacity: Math.random() * 0.6 + 0.2, // Um pouco mais visível como no início
+                    twinkleSpeed: Math.random() * 0.01 + 0.005, 
+                    decreasing: Math.random() > 0.5, 
                 });
             }
         };
@@ -41,26 +65,52 @@ export default function StarryBackground() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             stars.forEach((star) => {
+                const dx = mouseX - star.x;
+                const dy = mouseY - star.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 300) {
+                    // Seguir o cursor
+                    const force = (300 - distance) / 300;
+                    star.vx += (dx / distance) * force * 0.4;
+                    star.vy += (dy / distance) * force * 0.4;
+                    
+                    star.opacity = Math.min(1, star.opacity + 0.05);
+                } else {
+                    // Voltar para a posição original (Ficar "parado no fundo")
+                    const dOriginX = star.originX - star.x;
+                    const dOriginY = star.originY - star.y;
+                    const distOrigin = Math.sqrt(dOriginX * dOriginX + dOriginY * dOriginY);
+                    
+                    if (distOrigin > 1) {
+                        star.vx += (dOriginX / distOrigin) * 0.05;
+                        star.vy += (dOriginY / distOrigin) * 0.05;
+                    }
+                    
+                    star.opacity = Math.max(0.3, star.opacity - 0.01);
+                }
+
+                // Inércia para movimento suave
+                star.vx *= 0.94;
+                star.vy *= 0.94;
+                star.x += star.vx;
+                star.y += star.vy;
+
                 ctx.beginPath();
-                // A sombra cria um leve efeito de neon/brilho ao redor de cada pontinho
-                ctx.shadowBlur = Math.random() * 3 + 1;
+                const isNear = distance < 150;
+                ctx.shadowBlur = isNear ? 8 : 4;
                 ctx.shadowColor = `rgba(255, 255, 255, ${star.opacity})`;
 
                 ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
                 ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Lógica do Twinkle (Piscar)
                 if (star.decreasing) {
                     star.opacity -= star.twinkleSpeed;
-                    if (star.opacity <= 0.1) {
-                        star.decreasing = false; // Começa a acender
-                    }
+                    if (star.opacity <= 0.2) star.decreasing = false; 
                 } else {
                     star.opacity += star.twinkleSpeed;
-                    if (star.opacity >= 0.7) {
-                        star.decreasing = true; // Começa a apagar
-                    }
+                    if (star.opacity >= 0.7) star.decreasing = true; 
                 }
             });
 
@@ -68,11 +118,13 @@ export default function StarryBackground() {
         };
 
         window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('mousemove', handleMouseMove);
         resizeCanvas();
         drawStars();
 
         return () => {
             window.removeEventListener('resize', resizeCanvas);
+            window.removeEventListener('mousemove', handleMouseMove);
             cancelAnimationFrame(animationFrameId);
         };
     }, []);
