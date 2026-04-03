@@ -1,13 +1,23 @@
-'use client';
+"use client";
 
-import { useState, useRef } from 'react';
-import { Upload, FileArchive, ArrowRight, Download, RefreshCw, AlertCircle, HelpCircle, Info, ChevronDown } from 'lucide-react';
-import { processZipAction } from '@/actions/process-zip';
+import { useState, useRef } from "react";
+import {
+  Upload,
+  FileArchive,
+  ArrowRight,
+  Download,
+  RefreshCw,
+  AlertCircle,
+  HelpCircle,
+  Info,
+  ChevronDown,
+} from "lucide-react";
+import { processZipAction } from "@/actions/process-zip";
 
 interface FileResult {
   oldName: string;
   newName: string;
-  status: 'pending' | 'success' | 'error';
+  status: "pending" | "success" | "error";
   rawText?: string;
   details?: {
     rpa: string;
@@ -24,7 +34,7 @@ export default function Home() {
   const [results, setResults] = useState<FileResult[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [pattern, setPattern] = useState('');
+  const [pattern, setPattern] = useState("");
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -42,11 +52,11 @@ export default function Home() {
     e.preventDefault();
     setIsDragging(false);
     const files = e.dataTransfer.files;
-    if (files.length > 0 && files[0].type === 'application/zip') {
+    if (files.length > 0 && files[0].type === "application/zip") {
       setZipFile(files[0]);
       setError(null);
     } else {
-      setError('Por favor, envie um arquivo ZIP.');
+      setError("Por favor, envie um arquivo ZIP.");
     }
   };
 
@@ -67,8 +77,8 @@ export default function Home() {
 
     try {
       const formData = new FormData();
-      formData.append('file', zipFile);
-      formData.append('pattern', pattern);
+      formData.append("file", zipFile);
+      formData.append("pattern", pattern);
 
       const result = await processZipAction(formData);
 
@@ -80,20 +90,28 @@ export default function Home() {
           byteNumbers[i] = byteCharacters.charCodeAt(i);
         }
         const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: 'application/zip' });
+        const blob = new Blob([byteArray], { type: "application/zip" });
         const url = URL.createObjectURL(blob);
         setDownloadUrl(url);
       } else {
-        setError(result.error || 'Erro ao processar o arquivo.');
+        setError(result.error || "Erro ao processar o arquivo.");
       }
     } catch (err: any) {
       console.error(err);
-      const msg = err?.message || String(err) || '';
+      const msg = err?.message || String(err) || "";
 
-      if (msg.includes('Body exceeded') || msg.includes('Payload Too Large') || msg.toLowerCase().includes('size')) {
-        setError('O arquivo é muito grande. O limite agora é 200MB (reinicie o servidor caso não tenha feito).');
+      if (
+        msg.includes("Body exceeded") ||
+        msg.includes("Payload Too Large") ||
+        msg.toLowerCase().includes("size")
+      ) {
+        setError(
+          "O arquivo é muito grande. O limite agora é 200MB (reinicie o servidor caso não tenha feito).",
+        );
       } else {
-        setError(`Ocorreu um erro: A conexão pode ter caído ou o tempo limite foi atingido. Tente lotes menores (ex: 10 em 10). ${msg ? '(' + msg + ')' : ''}`);
+        setError(
+          `Ocorreu um erro: A conexão pode ter caído ou o tempo limite foi atingido. Tente lotes menores (ex: 10 em 10). ${msg ? "(" + msg + ")" : ""}`,
+        );
       }
     } finally {
       setIsProcessing(false);
@@ -103,7 +121,6 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <main className="container main-content animate-in space-y-16">
-
         {/* Header - Minimalist */}
         <header className="space-y-6">
           <div className="space-y-4">
@@ -112,7 +129,8 @@ export default function Home() {
             </h1>
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
               <p className="subtitle max-w-sm leading-relaxed text-zinc-500">
-                Ferramenta dedicada para processamento em lote e organização de documentos via OCR.
+                Ferramenta dedicada para processamento em lote e organização de
+                documentos via OCR.
               </p>
 
               <button
@@ -120,28 +138,42 @@ export default function Home() {
                 className="flex items-center gap-2 group cursor-pointer w-fit outline-none"
               >
                 <div className="w-5 h-5 rounded-full border border-zinc-800 flex items-center justify-center group-hover:border-white transition-colors help-glow">
-                  <Info size={10} className="text-zinc-600 group-hover:text-white transition-colors help-pulse" />
+                  <Info
+                    size={10}
+                    className="text-zinc-600 group-hover:text-white transition-colors help-pulse"
+                  />
                 </div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 group-hover:text-white transition-colors">
                   Como funciona?
                 </span>
-                <ChevronDown size={10} className={`text-zinc-700 transition-transform duration-300 ${showInfo ? 'rotate-180' : ''}`} />
+                <ChevronDown
+                  size={10}
+                  className={`text-zinc-700 transition-transform duration-300 ${showInfo ? "rotate-180" : ""}`}
+                />
               </button>
             </div>
           </div>
 
           {/* Quick Info Grid - Collapsible */}
-          <div className={`grid grid-cols-1 sm:grid-cols-2 gap-8 border-t border-zinc-900 overflow-hidden transition-all duration-500 ease-in-out ${showInfo ? 'max-h-60 opacity-100 pt-8 mb-8' : 'max-h-0 opacity-0 py-0 border-transparent'}`}>
+          <div
+            className={`grid grid-cols-1 sm:grid-cols-2 gap-8 border-t border-zinc-900 overflow-hidden transition-all duration-500 ease-in-out ${showInfo ? "max-h-60 opacity-100 pt-8 mb-8" : "max-h-0 opacity-0 py-0 border-transparent"}`}
+          >
             <div className="space-y-2">
-              <h2 className="text-[10px] font-bold uppercase tracking-widest text-white">O que é extraído</h2>
+              <h2 className="text-[10px] font-bold uppercase tracking-widest text-white">
+                O que é extraído
+              </h2>
               <p className="text-[11px] text-zinc-500 leading-relaxed font-medium">
-                RPA, Nome, Valor Recebido e CPF detectados automaticamente através de OCR.
+                RPA, Nome, Valor Recebido e CPF detectados automaticamente
+                através de OCR.
               </p>
             </div>
             <div className="space-y-2">
-              <h2 className="text-[10px] font-bold uppercase tracking-widest text-white">Formato de Saída</h2>
+              <h2 className="text-[10px] font-bold uppercase tracking-widest text-white">
+                Formato de Saída
+              </h2>
               <p className="text-[11px] text-zinc-400 leading-relaxed font-mono bg-zinc-900/50 p-2 rounded border border-zinc-800/50">
-                {"{Prefixo}"}_RPA {"{RPA}"}_DIARISTA {"{Nome}"}_{"{Valor}"}_{"{CPF}"}.pdf
+                {"{Prefixo}"}_RPA {"{RPA}"}_DIARISTA {"{Nome}"}_{"{Valor}"}_
+                {"{CPF}"}.pdf
               </p>
             </div>
           </div>
@@ -149,19 +181,25 @@ export default function Home() {
 
         {/* Form Area */}
         <div className="space-y-12">
-
           {/* Config */}
           <section className="space-y-3 max-w-xs">
             <div className="flex items-center gap-2">
-              <label htmlFor="pattern" className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold block shrink-0">
+              <label
+                htmlFor="pattern"
+                className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold block shrink-0"
+              >
                 Número Prefixo
               </label>
               <div className="group relative">
                 <div className="w-5 h-5 rounded-full border border-zinc-900 flex items-center justify-center help-glow cursor-help">
-                  <HelpCircle size={11} className="text-zinc-700 group-hover:text-white transition-colors animate-in help-pulse" />
+                  <HelpCircle
+                    size={11}
+                    className="text-zinc-700 group-hover:text-white transition-colors animate-in help-pulse"
+                  />
                 </div>
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-zinc-900 border border-zinc-800 text-[10px] text-zinc-300 leading-normal rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none shadow-2xl">
-                  O valor inserido será o início do nome. Ex: se for "17", o arquivo será "17_RPA 1777_DIARISTA NOME_VALOR_CPF.pdf".
+                  O valor inserido será o início do nome. Ex: se for "17", o
+                  arquivo será "17_RPA 1777_DIARISTA NOME_VALOR_CPF.pdf".
                 </div>
               </div>
             </div>
@@ -178,7 +216,7 @@ export default function Home() {
 
           {/* Upload */}
           <section
-            className={`minimalist-card flex flex-col items-center justify-center gap-4 py-16 ${isDragging ? 'border-zinc-500' : ''}`}
+            className={`minimalist-card flex flex-col items-center justify-center gap-4 py-16 ${isDragging ? "border-zinc-500" : ""}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -196,13 +234,19 @@ export default function Home() {
               {zipFile ? (
                 <>
                   <FileArchive size={20} className="mx-auto text-white mb-2" />
-                  <p className="text-xs font-medium text-white">{zipFile.name}</p>
-                  <p className="text-[10px] text-zinc-600 uppercase">{(zipFile.size / 1024 / 1024).toFixed(2)} MB • Pronto</p>
+                  <p className="text-xs font-medium text-white">
+                    {zipFile.name}
+                  </p>
+                  <p className="text-[10px] text-zinc-600 uppercase">
+                    {(zipFile.size / 1024 / 1024).toFixed(2)} MB • Pronto
+                  </p>
                 </>
               ) : (
                 <>
                   <Upload size={18} className="mx-auto text-zinc-800 mb-2" />
-                  <p className="text-zinc-600 text-xs text-balance">Arraste seu ZIP aqui ou clique para selecionar</p>
+                  <p className="text-zinc-600 text-xs text-balance">
+                    Arraste seu ZIP aqui ou clique para selecionar
+                  </p>
                 </>
               )}
             </div>
@@ -219,7 +263,7 @@ export default function Home() {
           {/* Action Button */}
           <div>
             <button
-              className={`minimalist-btn ${(!zipFile || isProcessing || !pattern.trim()) ? 'opacity-20 grayscale pointer-events-none' : ''}`}
+              className={`minimalist-btn ${!zipFile || isProcessing || !pattern.trim() ? "opacity-20 grayscale pointer-events-none" : ""}`}
               disabled={!zipFile || isProcessing || !pattern.trim()}
               onClick={handleProcess}
             >
@@ -239,21 +283,34 @@ export default function Home() {
         {results.length > 0 && (
           <section className="animate-in space-y-8 pt-12">
             <div className="flex items-center gap-4">
-              <h3 className="text-sm font-bold uppercase tracking-widest text-white">Resultados</h3>
+              <h3 className="text-sm font-bold uppercase tracking-widest text-white">
+                Resultados
+              </h3>
               <div className="h-[1px] flex-1 bg-zinc-900"></div>
-              <span className="text-[10px] text-zinc-600">{results.length} Arquivos</span>
+              <span className="text-[10px] text-zinc-600">
+                {results.length} Arquivos
+              </span>
             </div>
 
             <div className="grid gap-px bg-zinc-900 border border-zinc-900 overflow-hidden">
               {results.map((file, index) => (
-                <div key={index} className="flex items-center justify-between p-5 bg-black">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-5 bg-black"
+                >
                   <div className="flex items-center gap-4 min-w-0">
-                    <span className="text-xs text-zinc-600 truncate max-w-[150px]">{file.oldName}</span>
+                    <span className="text-xs text-zinc-600 truncate max-w-[150px]">
+                      {file.oldName}
+                    </span>
                     <ArrowRight size={12} className="text-zinc-800" />
-                    <span className="text-xs text-white font-medium truncate">{file.newName}.pdf</span>
+                    <span className="text-xs text-white font-medium truncate">
+                      {file.newName}.pdf
+                    </span>
                   </div>
-                  <div className={`text-[9px] font-bold ${file.status === 'success' ? 'text-zinc-400' : 'text-red-500'}`}>
-                    {file.status === 'success' ? 'OK' : 'FALHA'}
+                  <div
+                    className={`text-[9px] font-bold ${file.status === "success" ? "text-zinc-400" : "text-red-500"}`}
+                  >
+                    {file.status === "success" ? "OK" : "FALHA"}
                   </div>
                 </div>
               ))}
@@ -277,10 +334,20 @@ export default function Home() {
 
       <footer className="footer-custom">
         <div className="footer-container">
-          <span className="opacity-40 tracking-tight">© 2026 • Todos os direitos reservados</span>
+          <span className="opacity-40 tracking-tight">
+            © 2026 • Todos os direitos reservados
+          </span>
           <div className="footer-dev">
-            <span className="opacity-20 text-[9px] uppercase tracking-widest font-bold">Desenvolvido por</span>
-            <a href="https://luisitcho.com.br/" target="_blank" rel="noopener noreferrer">Luisitcho</a>
+            <span className="opacity-20 text-[9px] uppercase tracking-widest font-bold">
+              Desenvolvido por
+            </span>
+            <a
+              href="https://ozyris.com.br/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Ozyris
+            </a>
           </div>
         </div>
       </footer>
