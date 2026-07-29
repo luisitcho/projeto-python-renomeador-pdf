@@ -105,7 +105,11 @@ def process_zip(zip_file, pattern):
     finally:
         shutil.rmtree(temp_dir, ignore_errors=True)
 
-with gr.Blocks(title="Renomeador de PDF") as demo:
+css = """
+footer {display: none !important;}
+"""
+
+with gr.Blocks(title="Renomeador de PDF", css=css) as demo:
     gr.Markdown("# 📄 Renomeador de Recibo de Pagamento")
     gr.Markdown("Envie um arquivo `.zip` contendo recibos em PDF. O sistema usará IA (OCR) para extrair os dados e renomear os arquivos no padrão `{Prefixo}_RPA {RPA}_DIARISTA {Nome}_{Valor}_{CPF}.pdf`.")
     
