@@ -7,29 +7,25 @@
 /* Para voltar ao original, comente tudo dentro deste  */
 /* bloco ROSA e descomente o bloco PRETO abaixo.       */
 /* =================================================== */
-:root {
+/* :root {
   --background: #2a0416;
-  /* Fundo rosa/vinho ultra escuro */
   --foreground: #fdf2f8;
-  /* Texto claro e rosado */
   --glow-color: 244, 114, 182;
-  /* Efeito de brilho rosa vibrante (pink-400) */
   --btn-glow-opacity: 0.3;
   --card-glow-opacity: 0.1;
-}
-
+} */
 
 /* =================================================== */
 /* 🖤 TEMA PRETO ORIGINAL (Desativado)                 */
 /* =================================================== */
 
-/* :root {
+:root {
   --background: #000000;
   --foreground: #ffffff;
   --glow-color: 255, 255, 255;
   --btn-glow-opacity: 0.1;
   --card-glow-opacity: 0.02;
-} */
+}
 
 
 @keyframes animate-in {
