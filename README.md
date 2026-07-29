@@ -8,97 +8,61 @@ app_file: app.py
 pinned: false
 ---
 
-# Renomeador de Recibo de Pagamento - Documentação Técnica
+# Renomeador de Recibo de Pagamento - Versão Gradio
 
-Este projeto é uma ferramenta de processamento em lote para documentos PDF, focada na extração de dados via OCR (Optical Character Recognition) e renomeação automatizada. A solução utiliza uma arquitetura híbrida entre Node.js (Next.js) e Python para garantir performance e precisão na leitura de documentos escaneados.
+Este projeto é uma ferramenta de processamento em lote para documentos PDF, focada na extração de dados via OCR (Optical Character Recognition) e renomeação automatizada.
+
+Esta versão (branch `feat/migracao-huggingface`) foi reescrita e adaptada para rodar **nativamente no Hugging Face Spaces usando Gradio**. Essa mudança removeu a dependência de containers Docker (Next.js/Node), garantindo que a aplicação possa ser hospedada no plano "Free CPU" sem necessidade de cadastrar um cartão de crédito.
 
 ## 🚀 Live Demo
 
 A aplicação está hospedada e pode ser acessada publicamente em:
 **[Hugging Face Spaces - Renomeador de Recibo de Pagamento](https://huggingface.co/spaces/luisitcho/projeto-python-renomeador-pdf)**
 
-> **Nota**: Por ser uma hospedagem gratuita, a aplicação pode entrar em modo de suspensão após 48h de inatividade. Caso encontre a aplicação "dormindo", basta aguardar alguns minutos para que o container seja reiniciado.
+> **Nota**: Por ser uma hospedagem gratuita, a aplicação pode entrar em modo de suspensão após 48h de inatividade. Caso encontre a aplicação "dormindo", basta aguardar alguns minutos para que ela seja reiniciada.
 
-## Arquitetura do Sistema
+## Como Funciona o Fluxo
 
-A aplicação é containerizada via Docker para assegurar a disponibilidade das dependências de sistema necessárias para o processamento de imagem e OCR.
+1. O usuário realiza o upload de um arquivo ZIP contendo os PDFs (Recibos originais).
+2. O usuário preenche um "Prefixo" (Ex: `17`).
+3. O servidor em Python (`app.py`) recebe e descompacta os arquivos.
+4. Para cada PDF, as páginas são convertidas em imagens (via Poppler) e o texto bruto é extraído (via Tesseract OCR).
+5. O sistema aplica regras complexas (Expressões Regulares) para identificar campos-chave: RPA, Nome, Valor e CPF.
+6. O arquivo recebe um novo nome seguindo o rigoroso padrão:
+   `{Prefixo}_RPA {RPA}_DIARISTA {Nome}_{Valor}_{CPF}.pdf`
+7. A aplicação reempacota os PDFs finalizados e retorna um novo arquivo ZIP para download.
 
-### Fluxo de Processamento
-1. O usuário realiza o upload de um arquivo ZIP contendo os PDFs.
-2. O Server Action (`processZipAction`) descompacta os arquivos em um diretório temporário.
-3. Para cada PDF, um subprocesso Python é instanciado para executar o script de OCR.
-4. O script Python converte as páginas do PDF em imagens (via Poppler) e extrai o texto (via Tesseract).
-5. O Node.js recebe o texto extraído, aplica padrões de Regex para identificar campos-chave (RPA, Nome, Valor, CPF) e gera o novo nome do arquivo.
-6. Um novo arquivo ZIP é gerado e retornado ao usuário.
-
-## Estrutura de Diretórios
+## Estrutura do Projeto
 
 ```text
 .
-├── src/
-│   ├── actions/
-│   │   └── process-zip.ts    # Orquestração do processamento e lógica de extração (Regex)
-│   ├── app/
-│   │   ├── page.tsx          # Interface do usuário (Frontend Next.js)
-│   │   └── globals.css       # Definições de estilo e tokens de design
-├── process_pdf.py            # Motor de OCR em Python (Tesseract + pdf2image)
-├── Dockerfile                # Configuração do ambiente (Node + Python + Tesseract + Poppler)
-├── requirements.txt          # Dependências Python (pytesseract, pdf2image, pillow)
-├── package.json              # Dependências Node.js e scripts de automação
-└── README.md                 # Documentação do projeto
+├── app.py                    # Interface Gráfica (Gradio) e Lógica OCR
+├── packages.txt              # Dependências do Sistema Linux (Tesseract, Poppler)
+├── requirements.txt          # Bibliotecas Python (gradio, pytesseract, pdf2image)
+└── README.md                 # Documentação técnica
 ```
 
-## Motor de OCR (Python)
+## Motor de Extração (OCR)
 
-A escolha do Python para o núcleo de extração deve-se à maturidade das bibliotecas de processamento de imagem. O script `process_pdf.py` utiliza:
+A escolha do ecossistema Python nativo se deve à maturidade das suas bibliotecas de visão computacional:
 
-- **pdf2image**: Utiliza o utilitário `pdftoppm` (parte do Poppler) para renderizar páginas de PDF em objetos de imagem bufferizados.
-- **pytesseract**: Wrapper para o motor **Tesseract OCR**. Está configurado com suporte ao idioma português (`por`) para garantir a captura correta de caracteres especiais (acentuação e cedilha).
-- **Pillow (PIL)**: Manipulação intermediária de imagens para otimização de leitura.
+- **pdf2image**: Utiliza o utilitário `poppler-utils` para renderizar páginas do PDF em buffers de imagem.
+- **pytesseract**: Wrapper para o **Tesseract OCR**, que foi devidamente configurado com pacotes de idioma Português (`tesseract-ocr-por`) para ler cedilhas e acentos corretamente.
+- **Expressões Regulares (`re`)**: As rotinas de busca foram aprimoradas para lidar com sujeira e ruídos gerados por escaneamentos em baixa qualidade.
 
-## Requisitos de Sistema (Via Docker)
+## Como Executar Localmente
 
-O ambiente de execução deve conter as seguintes ferramentas instaladas (configuradas automaticamente no Dockerfile):
-- `tesseract-ocr`: Motor principal de OCR.
-- `tesseract-ocr-por`: Treinamento de linguagem para Português.
-- `poppler-utils`: Necessário para a conversão de PDF para Imagem.
+Caso precise testar ou alterar o código no seu próprio computador:
 
-## Scripts Disponíveis
-
-### Execução em Desenvolvimento (Docker)
-Para rodar a aplicação com todas as dependências isoladas:
-```bash
-npm run docker:dev
-```
-Este comando executa o build da imagem e inicia o container mapeando a porta 3000.
-
-### Limpeza de Ambiente
-Caso ocorram conflitos de porta ou containers órfãos:
-```bash
-docker stop $(docker ps -q)
-```
-
-## Lógica de Extração de Dados
-A extração é baseada em expressões regulares (Regex) aplicadas sobre o texto bruto retornado pelo OCR. O sistema prioriza a identificação de etiquetas comuns como "RPA", "CPF nº", "Valor R$" e busca nomes de beneficiários baseando-se em padrões de caixa alta e posicionamento no documento.
-
-## Deployment e Integração Contínua (CI/CD)
-
-A aplicação utiliza um fluxo de Integração e Entrega Contínua (CI/CD) configurado via **GitHub Actions** para garantir o deploy automatizado na plataforma Hugging Face Spaces.
-
-Para aplicar atualizações em ambiente de produção:
-
-1. Realize o commit das suas alterações e efetue o push para a branch `main`:
+1. Certifique-se de que o seu SO possui os binários instalados:
+   * **Debian/Ubuntu:** `sudo apt install tesseract-ocr tesseract-ocr-por poppler-utils`
+   * **Mac (Homebrew):** `brew install tesseract tesseract-lang poppler`
+2. Instale as bibliotecas Python:
    ```bash
-   git add .
-   git commit -m "chore: atualiza regras de extração"
-   git push origin main
+   pip install -r requirements.txt
    ```
-
-2. **Fluxo de Automação**: O evento de push na branch `main` disparará automaticamente a pipeline configurada.
-3. A pipeline sincroniza o controle de versão do GitHub com o servidor do Hugging Face.
-4. Ao receber o novo código, a infraestrutura do Hugging Face reconstrói o container Docker automaticamente.
-
-> **⚠️ Configuração Exigida (Authentication Token)**:
-> Para que o workflow do GitHub Actions tenha permissão de escrita no Hugging Face, o token de acesso deve ser configurado no repositório.
-> Vá até: `Repository Settings > Secrets and variables > Actions > New repository secret`.
-> Defina o nome do secret estritamente como **`HF_TOKEN`** e cole o valor gerado no painel da sua conta Hugging Face.
+3. Inicie o servidor local:
+   ```bash
+   python app.py
+   ```
+4. O terminal exibirá um endereço local (normalmente `http://127.0.0.1:7860`). Acesse pelo navegador para ver a interface funcionando!
