@@ -17,8 +17,8 @@ module.exports = {
         // Para ATIVAR, deixe essas linhas como estão.
         // Para VOLTAR AO PRETO ORIGINAL, coloque um "//" antes de "zinc:" e "black:".
         // =================================================== //
-        zinc: colors.pink,  // Substitui os tons neutros por rosa Barbie
-        black: '#1b020c',   // Escurece o preto para um tom de vinho super denso
+        // zinc: colors.pink,  // Substitui os tons neutros por rosa Barbie
+        // black: '#1b020c',   // Escurece o preto para um tom de vinho super denso
       },
     },
   },
