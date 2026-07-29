@@ -7,6 +7,12 @@ import gradio as gr
 import pytesseract
 from pdf2image import convert_from_path
 import shutil
+import spaces
+
+@spaces.GPU
+def dummy_gpu():
+    pass
+
 
 def process_single_pdf(pdf_path):
     images = convert_from_path(pdf_path)
