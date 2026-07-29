@@ -3,7 +3,8 @@ title: Renomeador de Recibo de Pagamento
 emoji: 📄
 colorFrom: indigo
 colorTo: purple
-sdk: docker
+sdk: gradio
+app_file: app.py
 pinned: false
 ---
 
